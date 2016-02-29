@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <cctype>
 #include <iostream>
-#include "SyncedMemory.h"
+#include "../utils/SyncedMemory.h"
 using namespace std;
 
 #define CHECK {\
