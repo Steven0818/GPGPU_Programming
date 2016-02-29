@@ -1,1 +1,1 @@
-# GPGPU_Programming_HW0
+# GPGPU_Programming
