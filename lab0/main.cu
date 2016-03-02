@@ -53,7 +53,7 @@ int main(int argc, char **argv)
 	// An example: transform the first 64 characters to '!'
 	// Don't transform over the tail
 	// And don't transform the line breaks
-	SomeTransform<<<100, 64>>>(input_gpu, fsize);
+	SomeTransform<<<fsize/64+1, 64>>>(input_gpu, fsize);
 
 	puts(text_smem.get_cpu_ro());
 	return 0;
