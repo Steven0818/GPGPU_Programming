@@ -11,7 +11,12 @@
 using namespace std;
 __device__ __host__ int CeilDiv(int a, int b) { return (a-1)/b + 1; }
 __device__ __host__ int CeilAlign(int a, int b) { return CeilDiv(a, b) * b; }
-
+__global__ void bulid(const char *text,int *segTree,int text_size){
+    int idx = blockIdx.x*blockDim.x + threadIdx.x
+    if(idx<text_size && text[idx] != '\n'){
+        segTree[id] = text[idx]
+    }
+}
  
 struct Node {
     int value;   
@@ -23,7 +28,7 @@ int RC(int i) {return i*2+1;}
  
 void build(int L, int R, int i,Node* node,const char *text)
 {
-    
+
     if (L == R)
     {
         // 設定樹葉的數值
@@ -50,10 +55,19 @@ void build(int L, int R, int i,Node* node,const char *text)
 
 void CountPosition(const char *text, int *pos, int text_size)
 {
-	Node node[200];
-	int node_Init = 1;// node array裡面從1存到textsize*2-1
-	const char test[7] = {'1','2','3','4','5','6','7'};
-	build(0,text_size-1,node_Init,node,text);    
+    int* segTree;
+    int treeSize;
+    int treeHeight;
+    if(text_size%2 == 0){
+        treeSize = 2*text_size-1;
+    }
+    else{
+        treeSize = 2*text_size;
+    }
+
+    for(int i = 0;i < )
+    cudaMalloc(&segTree,(treeSize)*sizeof(int));
+
 }
 
 int ExtractHead(const int *pos, int *head, int text_size)
@@ -71,6 +85,4 @@ int ExtractHead(const int *pos, int *head, int text_size)
 }
 
 void Part3(char *text, int *pos, int *head, int text_size, int n_head)
-{
-
-}
+{}
