@@ -64,11 +64,13 @@ tuple<vector<char>, vector<int>, vector<int>> GenerateTestCase(Engine &eng, cons
 	return ret;
 }
 
+
+
 int main(int argc, char **argv)
 {
 	// Initialize random text
 	default_random_engine engine(12345);
-	auto text_pos_head = GenerateTestCase(engine, 1); // 40 MB data
+	auto text_pos_head = GenerateTestCase(engine, 4000000); // 40 MB data
 	vector<char> &text = get<0>(text_pos_head);
 	vector<int> &pos = get<1>(text_pos_head);
 	vector<int> &head = get<2>(text_pos_head);
@@ -85,10 +87,7 @@ int main(int argc, char **argv)
 	for (vector<char>::iterator it = text.begin() ; it != text.end(); ++it){
 		fp<<*it;//寫入字串
 	}
-
     fp.close();//關閉檔案
-	cout<<n<<endl;
-	cout<<text[6]<<endl;
 	char *text_gpu;
 	cudaMalloc(&text_gpu, sizeof(char)*n);
 	SyncedMemory<char> text_sync(text.data(), text_gpu, n);
@@ -104,9 +103,20 @@ int main(int argc, char **argv)
 	timer_count_position.Start();
 	int *pos_yours_gpu = pos_yours_sync.get_gpu_wo();
 	CountPosition(text_sync.get_gpu_ro(), pos_yours_gpu, n);
-
 	timer_count_position.Pause();
 	CHECK;
+	//////     write pos file     /////
+	const int *pos_yours_cpu = pos_yours_sync.get_cpu_ro();
+	char filename2[] = "pos.txt";
+	fp.open(filename2, ios::out);
+    if(!fp){
+        cout<<"Fail to open file: "<<filename2<<endl;
+    }
+   
+	for (int i=0;i<n;i++){
+		fp<<pos_yours_cpu[i]<<endl;//寫入字串
+	}
+	///////////////////////////////////
 	printf_timer(timer_count_position);
 	// Part I check
 	const int *golden = pos.data();
@@ -121,7 +131,6 @@ int main(int argc, char **argv)
 	int *head_yours_gpu = head_yours_sync.get_gpu_wo();
 	int n_head = ExtractHead(pos_yours_sync.get_gpu_ro(), head_yours_gpu, n);
 	CHECK;
-
 	// Part II check
 	do {
 		if (n_head != head.size()) {
