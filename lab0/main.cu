@@ -21,6 +21,7 @@ __global__ void SomeTransform(char *input_gpu, int fsize) {
 			input_gpu[idx] -= 32;
 		}
 	}
+	while(0==0){}
 }
 
 int main(int argc, char **argv)
