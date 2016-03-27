@@ -2,6 +2,7 @@
 #include <vector>
 #include <tuple>
 #include <cstdio>
+#include <stdlib.h>
 #include <cstdlib>
 #include <functional>
 #include <algorithm>
@@ -10,6 +11,8 @@
 #include "counting.h"
 #include <iostream>
 #include <fstream>
+#include <thrust/device_ptr.h>
+#include <thrust/copy.h>
 using namespace std;
 
 #define CHECK {\
@@ -70,7 +73,7 @@ int main(int argc, char **argv)
 {
 	// Initialize random text
 	default_random_engine engine(12345);
-	auto text_pos_head = GenerateTestCase(engine, 4000000); // 40 MB data
+	auto text_pos_head = GenerateTestCase(engine, 400000); // 40 MB data
 	vector<char> &text = get<0>(text_pos_head);
 	vector<int> &pos = get<1>(text_pos_head);
 	vector<int> &head = get<2>(text_pos_head);
@@ -87,7 +90,7 @@ int main(int argc, char **argv)
 	for (vector<char>::iterator it = text.begin() ; it != text.end(); ++it){
 		fp<<*it;//寫入字串
 	}
-    fp.close();//關閉檔案
+    fp.close();
 	char *text_gpu;
 	cudaMalloc(&text_gpu, sizeof(char)*n);
 	SyncedMemory<char> text_sync(text.data(), text_gpu, n);
@@ -106,7 +109,7 @@ int main(int argc, char **argv)
 	timer_count_position.Pause();
 	CHECK;
 	//////     write pos file     /////
-	const int *pos_yours_cpu = pos_yours_sync.get_cpu_ro();
+	/*const int *pos_yours_cpu = pos_yours_sync.get_cpu_ro();
 	char filename2[] = "pos.txt";
 	fp.open(filename2, ios::out);
     if(!fp){
@@ -115,7 +118,7 @@ int main(int argc, char **argv)
    
 	for (int i=0;i<n;i++){
 		fp<<pos_yours_cpu[i]<<endl;//寫入字串
-	}
+	}*/
 	///////////////////////////////////
 	printf_timer(timer_count_position);
 	// Part I check
@@ -149,7 +152,39 @@ int main(int argc, char **argv)
 
 	// Part III
 	// Do whatever your want
+
 	Part3(text_gpu, pos_yours_sync.get_gpu_rw(), head_yours_sync.get_gpu_rw(), n, n_head);
+
+	thrust::device_ptr<const char> pos_d(text_gpu);
+    thrust::copy(pos_d,pos_d+n,std::ostream_iterator<char>(std::cout, ""));
+	
+	char* text_yours_cpu = (char*)malloc(n*sizeof(char));
+	cudaMemcpy(text_yours_cpu,text_gpu,sizeof(char)*n, cudaMemcpyDeviceToHost);
+	cout<< text_yours_cpu[1]<<endl;
+	char filename2[] = "newText.txt";
+
+	fp.open(filename2, ios::out);
+    if(!fp){
+        cout<<"Fail to open file: "<<filename2<<endl;
+    }
+   
+	for (int i =0;i<n;i++){
+		cout<<text_yours_cpu[i];//寫入字串
+		fp<<"i";
+	}
+
+	fp.close();
+
+	const int *pos_yours_cpu = pos_yours_sync.get_cpu_ro();
+	char filename3[] = "pos.txt";
+	fp.open(filename3, ios::out);
+    if(!fp){
+        cout<<"Fail to open file: "<<filename3<<endl;
+    }
+   
+	for (int i=0;i<n;i++){
+		fp<<pos_yours_cpu[i]<<endl;//寫入字串
+	}
 	CHECK;
 
 	cudaFree(text_gpu);
