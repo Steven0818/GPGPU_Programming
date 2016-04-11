@@ -4,7 +4,7 @@
 #include <stdlib.h>  
 #include <iostream>
 using namespace std;
-const int FIREWORKS = 15;
+const int FIREWORKS = 20;
 const int FIREWORK_PARTICLES = 50;
 
 static const unsigned W = 640;
@@ -92,7 +92,7 @@ void Firework::initialise()
     framesUntilLaunch = 2;//((int)rand() % NFRAME);
  
     // Size of the particle (as thrown to glPointSize) - range is 1.0f to 4.0f
-    particleSize = 1;//1.0f + ((float)rand() / (float)RAND_MAX) * 3.0f;
+    particleSize = 2;//1.0f + ((float)rand() / (float)RAND_MAX) * 3.0f;
 
 
  
