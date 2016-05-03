@@ -268,7 +268,7 @@ void PoissonImageCloning(
 	
 	 
 
-	int iteration = 10000;
+	int iteration = 6000;
 	for(int i=0;i<iteration;i++){
 		if(i%2 ==0){
 			PoissonImageEditing<<<dim3(CeilDiv(wt2,32), CeilDiv(ht2,16)), dim3(32,16)>>>(
